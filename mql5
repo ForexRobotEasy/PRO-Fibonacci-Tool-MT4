@@ -1,0 +1,83 @@
+
+// PRO Fibonacci Tool MT4
+// Developer: Forex Robot Easy Team
+// Website: forexroboteasy.com
+
+// Include necessary libraries
+#include <Trade\Trade.mqh>
+#include <ChartObjects\ChartObjectsFibonacci.mqh>
+
+// Declare global variables
+CTrade trade; // Trading object
+CChartObjectFibonacci fibonacci; // Fibonacci object
+bool isDrawingEnabled = false; // Flag to indicate if drawing mode is enabled
+
+// Initialize the expert advisor
+int OnInit()
+{
+    // Enable the drawing mode by default
+    isDrawingEnabled = true;
+    
+    // Set the initial Fibonacci levels
+    fibonacci.SetAnchorPoints(0, 1); // Change the anchor points as per your requirements
+    
+    return(INIT_SUCCEEDED);
+}
+
+// Handle key events for quick drawing of Fibonacci levels
+void OnChartEvent(const int id, const long &lparam, const double &dparam, const string &sparam)
+{
+    // Check if the event is a key press event
+    if (id == CHARTEVENT_KEYDOWN)
+    {
+        // Check if the 'D' key is pressed
+        if (sparam == 'D' || sparam == 'd')
+        {
+            // Toggle the drawing mode
+            isDrawingEnabled = !isDrawingEnabled;
+        }
+    }
+}
+
+// Calculate and adjust Fibonacci levels on new market highs or lows
+void OnTick()
+{
+    // Check if drawing mode is enabled
+    if (isDrawingEnabled)
+    {
+        // Get the current market high and low
+        double marketHigh = High[0];
+        double marketLow = Low[0];
+        
+        // Adjust the Fibonacci levels based on the current market conditions
+        fibonacci.SetAnchorPoints(marketLow, marketHigh);
+    }
+}
+
+// Handle chart updates and drawing of Fibonacci levels
+void OnChartEvent(const int id, const long &lparam, const double &dparam, const string &sparam, const datetime &time)
+{
+    // Check if drawing mode is enabled
+    if (isDrawingEnabled)
+    {
+        // Clear existing Fibonacci levels
+        fibonacci.Clear();
+        
+        // Draw the Fibonacci levels on the chart
+        fibonacci.Draw();
+    }
+}
+
+// Handle the deinitialization of the expert advisor
+void OnDeinit(const int reason)
+{
+    // Clear existing Fibonacci levels
+    fibonacci.Clear();
+}
+
+// The main entry point of the expert advisor
+void OnStart()
+{
+    // Start trading operations
+    trade.Trade();
+}
